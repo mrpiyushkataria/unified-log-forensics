@@ -19,7 +19,7 @@ class RiskFactors:
 
 class RiskScorer:
     """Risk scoring engine for detected anomalies"""
-    
+
     # Weight configuration for different factors
     WEIGHTS = {
         'request_frequency': 0.25,
