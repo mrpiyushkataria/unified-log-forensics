@@ -1,1 +1,71 @@
 
+app:
+  name: "Unified Log Forensics Platform"
+  version: "1.0.0"
+  debug: false
+  secret_key: "your-secret-key-change-in-production"
+  
+storage:
+  mode: "sqlite"  # sqlite, elasticsearch, postgresql
+  sqlite_path: "./data/forensics.db"
+  elasticsearch:
+    hosts: ["localhost:9200"]
+    index_prefix: "logs_"
+  retention_days: 365
+  
+processing:
+  batch_size: 1000
+  max_workers: 4
+  realtime_buffer: 10000
+  correlation_window_seconds: 5
+  
+detection:
+  endpoint_abuse:
+    threshold_requests_per_minute: 100
+    threshold_data_mb: 100
+    sequential_hits: 10
+  sql_injection:
+    keywords:
+      - "union"
+      - "select"
+      - "insert"
+      - "update"
+      - "delete"
+      - "drop"
+      - "sleep"
+      - "benchmark"
+      - "waitfor"
+    suspicious_patterns:
+      - "' or '1'='1"
+      - "'--"
+      - "/*"
+      - "*/"
+      - "exec("
+      - "eval("
+  ip_abuse:
+    threshold_requests_per_second: 10
+    unique_endpoints_threshold: 50
+    burst_window_seconds: 60
+    
+web:
+  host: "0.0.0.0"
+  port: 8000
+  debug: false
+  auth_required: true
+  cors_origins:
+    - "http://localhost:3000"
+    
+logging:
+  level: "INFO"
+  file: "./logs/platform.log"
+  max_size_mb: 100
+  backup_count: 5
+  
+reports:
+  output_dir: "./reports"
+  formats: ["json", "csv", "pdf"]
+  sensitive_data_redaction: true
+  redaction_patterns:
+    - "\d{3}-\d{2}-\d{4}"  # SSN
+    - "\d{16}"  # Credit card
+    - "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}"  # Email
